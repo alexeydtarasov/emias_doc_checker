@@ -11,4 +11,5 @@ try:
     bot.loop()
 except:
     traceback = format_exc()
+    print(traceback)
     bot.send_error_alert(traceback)
