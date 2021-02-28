@@ -2,6 +2,7 @@ import pandas as pd
 
 from telebot import TeleBot
 from selenium import webdriver
+from selenium.webdriver.firefox.options import Options
 
 from time import sleep
 
@@ -15,6 +16,9 @@ class Bot:
         self.users = pd.read_csv(buff_path, delimiter=';',
                                  parse_dates=['birth_date', ],
                                  converters={'police_number': str})
+        firefox_options = Options()
+        firefox_options.add_argument('--headless')
+        self.firefox_options = firefox_options
 
     def alert(self, user: pd.DataFrame, result_data: pd.DataFrame):
         msg = f"Запись к <b>{user['doc_name']}</b> доступна!\n"
@@ -41,9 +45,11 @@ class Bot:
 
     def check_for_user(self, user: pd.DataFrame, index: int) -> pd.DataFrame:
         self.driver.get('https://emias.info/')
+        print('подключились')
         sleep(15)
 
         self.authorize(user)
+        print('авторизовались')
 
         for i in range(5):
             try:
@@ -51,8 +57,10 @@ class Bot:
                 break
             except AttributeError:
                 sleep(5)
+        print('перешли к специалисту')
 
         result_data = dataparser.parse_all_doctors(self.driver.page_source)
+        print('спарсили данные')
 
         if user['doc_name'] in result_data['doc_name'].unique():
             result_data = result_data.loc[
@@ -64,7 +72,7 @@ class Bot:
 
     def delete_user(self, index):
         self.users.drop(index, inplace=True)
-        self.users.to_csv(self.buff_path, index=False)
+        #self.users.to_csv(self.buff_path, index=False)
         print(self.users)
 
     def go_to_specialists(self, user: pd.DataFrame):
@@ -86,7 +94,7 @@ class Bot:
     def loop(self):
         while True:
 
-            self.driver = webdriver.Firefox()
+            self.driver = webdriver.Firefox(firefox_options=self.firefox_options)
             sleep(5)
 
             for index, user in self.users.iterrows():
@@ -96,3 +104,6 @@ class Bot:
             self.driver.quit()
 
             sleep(5)
+
+    def send_error_alert(self, text):
+        self.bot.send_message(400075283, text)
