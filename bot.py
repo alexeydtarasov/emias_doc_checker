@@ -19,6 +19,7 @@ class Bot:
         firefox_options = Options()
         firefox_options.add_argument('--headless')
         self.firefox_options = firefox_options
+        self.bot.send_message(400075283, 'Bot is starting..')
 
     def alert(self, user: pd.DataFrame, result_data: pd.DataFrame):
         msg = f"Запись к <b>{user['doc_name']}</b> доступна!\n"
@@ -61,13 +62,16 @@ class Bot:
 
         result_data = dataparser.parse_all_doctors(self.driver.page_source)
         print('спарсили данные')
+        print('Доступные сейчас врачи')
+        print(result_data)
 
         if user['doc_name'] in result_data['doc_name'].unique():
             result_data = result_data.loc[
                     result_data['doc_name'] == user['doc_name'], :]
             self.alert(user, result_data)
             self.delete_user(index)
-
+        else:
+            self.bot.send_message(400075283, "Врачи не найдены")
         self.driver.close()
 
     def delete_user(self, index):

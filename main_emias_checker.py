@@ -10,4 +10,5 @@ bot = Bot(TOKEN, "./emias_buff.csv")
 try:
     bot.loop()
 except:
-    bot.send_error_alert(format_exc)
+    traceback = format_exc()
+    bot.send_error_alert(traceback)
