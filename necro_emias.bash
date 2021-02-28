@@ -1,4 +1,5 @@
 while true; do
         python3 main_emias_checker.py >> log
-        sleep 10
+        killall firefox
+	sleep 10
 done
