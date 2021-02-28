@@ -1,2 +1,5 @@
 token.txt
 emias_buff.csv
+geckodriver.log
+__pycache__
+__pycache__/*
